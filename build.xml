@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Segine" default="publish" basedir="."
+    xmlns:ivy="antlib:org.apache.ivy.ant">
+    <description>
+            A lightweight Java FSM framework
+    </description>
+    <property name="src.dir" value="${basedir}/src" />
+    <property name="bin.dir" value="${basedir}/bin" />
+    <property name="dist.dir" value="${basedir}/distrib" />
+    <property name="ivy.lib.dir" value="${basedir}/lib" />
+    <!--<property name="ivy.settings.file" value="C:\\Users\\kurtzhi\\.ivy2\\ivysettings.xml"/>-->
+    <property name="ivy.deliver.revision" value="1.0" />
+    <property name="artifact-name" value="segine" />
+    <property name="jar" value="${dist.dir}/${artifact-name}-${ivy.deliver.revision}.jar" />
+	
+    <path id="lib.path.id">
+        <fileset dir="${ivy.lib.dir}"/>
+    </path>
+        
+    <path id="run.path.id">
+        <path path="${bin.dir}"/>
+        <path refid="lib.path.id" />
+    </path>
+    
+    <target name="init">
+        <ivy:configure file="C:\\Users\\kurtzhi\\.ivy2\\ivysettings.xml"/>
+        <ivy:resolve/>
+        <mkdir dir="${bin.dir}"/>
+        <mkdir dir="${ivy.lib.dir}"/>
+        <mkdir dir="${dist.dir}"/>
+        <ivy:retrieve/>
+    </target>
+    
+    <target name="compile" depends="init">
+        <javac srcdir="${src.dir}" destdir="${bin.dir}" fork="true" includeantruntime="false">
+            <classpath refid="lib.path.id"></classpath>
+        </javac>
+    </target>
+    
+    <target name="run" depends="compile">
+        <java classname="com.kurtzhi.test.Test" classpathref="run.path.id" fork="true" />
+    </target>
+
+    <target name="deliver" depends="compile">
+        <delete dir="${bin.dir}/com/kurtzhi/test"></delete>
+        <!--<jar destfile="${jar}" basedir="${bin.dir}" excludes="com/kurtzhi/test/*"></jar>-->
+        <jar destfile="${jar}" basedir="${bin.dir}"></jar>
+        <exec dir="${bin.dir}\\com\\kurtzhi" executable="cmd.exe">
+            <arg value="/c"/>
+            <arg value="dir"/>
+        </exec>
+        <ivy:deliver deliverpattern="${dist.dir}/[artifact]-[revision].[ext]"/>
+    </target>
+
+    <target name="publish" depends="deliver">
+        <ivy:publish overwrite="true" 
+                     artifactspattern="${dist.dir}/[artifact]-[revision].[ext]" />
+    </target>
+    
+    <target name="clean">
+        <delete dir="${bin.dir}"/>
+        <delete dir="${ivy.lib.dir}"/>
+        <delete dir="${dist.dir}"/>
+    </target>
+    
+    <target name="clean-cache">
+        <ivy:cleancache />
+    </target>
+
+</project>
